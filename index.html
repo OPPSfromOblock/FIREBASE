@@ -1076,18 +1076,17 @@ const database = firebase.database();  // Get Realtime DB instance
                 });
         }
 
-        async function initializeApp() {
+       // ✅ CORRECT (added async)
+async function initializeApp() {
   try {
-    showLoading();
-    
-    // ✅ Properly await inside async function
     const snapshot = await firebase.database().ref('students').once('value');
-    const studentsData = snapshot.val() || allStudents; // Fallback to default data
-    
-    if (!snapshot.exists()) {
-      // If no data, save defaults
-      await firebase.database().ref('students').set(allStudents);
-    }
+    const students = snapshot.val() || [];
+    console.log("Students:", students);
+  } catch (error) {
+    console.error("Firebase error:", error);
+  }
+}
+initializeApp(); // Call the function
     
     updateUI(studentsData);
   } catch (error) {
