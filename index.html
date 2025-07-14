@@ -1079,14 +1079,24 @@ const database = firebase.database();  // Get Realtime DB instance
        // ✅ CORRECT (added async)
 async function initializeApp() {
   try {
+    // ✅ 1. Load data from Firebase
     const snapshot = await firebase.database().ref('students').once('value');
-    const students = snapshot.val() || [];
-    console.log("Students:", students);
-  } catch (error) {
+    const studentsData = snapshot.val() || allStudents;
+
+    // ✅ 2. Update UI with loaded data
+    updateUI(studentsData);
+
+  } catch (error) { // ✅ Opening brace `{` after catch
     console.error("Firebase error:", error);
+    document.getElementById('dbStatus').textContent = "Disconnected";
+    
+  } finally { // ✅ Finally block closes properly
+    hideLoading(); // Always hide spinner
   }
 }
-initializeApp(); // Call the function
+
+// Call the function
+initializeApp();
     
     updateUI(studentsData);
    catch (error) 
