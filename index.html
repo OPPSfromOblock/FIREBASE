@@ -1089,8 +1089,7 @@ async function initializeApp() {
   } catch (error) { // ✅ Opening brace `{` after catch
     console.error("Firebase error:", error);
     document.getElementById('dbStatus').textContent = "Disconnected";
-    
-  } finally { // ✅ Finally block closes properly
+    } finally { // ✅ Finally block closes properly
     hideLoading(); // Always hide spinner
   }
 }
