@@ -1077,17 +1077,29 @@ const database = firebase.database();  // Get Realtime DB instance
         }
 
         async function initializeApp() {
-  showLoading();
-  
   try {
-    const snapshot = await firebase.database().ref('students').once('value');
-    const studentsData = snapshot.val() || []; // Fallback to empty array
+    showLoading();
     
-    if (studentsData.length === 0) {
-      console.log("Initializing with default students");
+    // ✅ Properly await inside async function
+    const snapshot = await firebase.database().ref('students').once('value');
+    const studentsData = snapshot.val() || allStudents; // Fallback to default data
+    
+    if (!snapshot.exists()) {
+      // If no data, save defaults
       await firebase.database().ref('students').set(allStudents);
     }
     
+    updateUI(studentsData);
+  } catch (error) {
+    console.error("Firebase error:", error);
+    document.getElementById('dbStatus').textContent = "Disconnected";
+  } finally {
+    hideLoading(); // Always hide spinner
+  }
+}
+
+// Start the app
+initializeApp(); // ✅ No need to await here unless in another async context
     updateUI(studentsData);
   } catch (error) {
     console.error("Initialization failed:", error);
@@ -1096,11 +1108,19 @@ const database = firebase.database();  // Get Realtime DB instance
     hideLoading(); // Always hide loading spinner
   }
 }
-                // Load data from Firebase
-                const [studentsData, historyData] = await Promise.all([
-                    loadStudentsFromFirebase(),
-                    loadHistoryFromFirebase()
-                ]);
+               // ✅ Correct - await inside async function
+async function loadStudents() {
+  const snapshot = await firebase.database().ref('students').once('value');
+  return snapshot.val();
+}
+
+// Call it properly
+loadStudents().then(data => {
+  console.log("Students loaded:", data);
+}).catch(error => {
+  console.error("Error loading students:", error);
+});
+                
 
                 // If no students in Firebase, use default data and save to Firebase
                 if (studentsData.length === 0) {
