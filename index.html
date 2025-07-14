@@ -1092,7 +1092,7 @@ initializeApp(); // Call the function
    catch (error) 
     console.error("Firebase error:", error);
     document.getElementById('dbStatus').textContent = "Disconnected";
-  } finally {
+   finally {
     hideLoading(); // Always hide spinner
   }
 }
