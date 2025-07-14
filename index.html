@@ -994,8 +994,11 @@ const firebaseConfig = {
 };
     
 // Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const database = firebase.database();  // Get Realtime DB instance
+try {
+  firebase.initializeApp(firebaseConfig);
+} catch (err) {
+  console.error("Firebase initialization error", err);
+}
 
         // Global variables
         let students = [];
@@ -1076,21 +1079,24 @@ const database = firebase.database();  // Get Realtime DB instance
                 });
         }
 
-       // ✅ CORRECT (added async)
-async function initializeApp() {
+     / 2. Proper async function structure
+async function loadAppData() {
   try {
-    // ✅ 1. Load data from Firebase
+    showLoading();
+    
+    // Load data
     const snapshot = await firebase.database().ref('students').once('value');
-    const studentsData = snapshot.val() || allStudents;
-
-    // ✅ 2. Update UI with loaded data
+    const studentsData = snapshot.val() || [];
+    
+    // Update UI
     updateUI(studentsData);
+    
 
-  } catch (error) { // ✅ Opening brace `{` after catch
-    console.error("Firebase error:", error);
+} catch (error) {
+    console.error("Data load error:", error);
     document.getElementById('dbStatus').textContent = "Disconnected";
-    } finally { // ✅ Finally block closes properly
-    hideLoading(); // Always hide spinner
+  } finally {
+    hideLoading();
   }
 }
 
