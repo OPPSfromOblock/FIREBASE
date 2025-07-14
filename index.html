@@ -983,7 +983,7 @@ const allStudents = [
 ];
 
 
-        const firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyAm6K9Iat9P95AfHh7fKh_tn7cnPxorzn0",
     authDomain: "gstatus-4428c.firebaseapp.com",
     databaseURL: "https://gstatus-4428c-default-rtdb.firebaseio.com",  // Fixed
@@ -993,10 +993,9 @@ const allStudents = [
     appId: "1:722315143584:web:f46b5f39b16f778e27dcc5"
 };
     
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database();  // Get Realtime DB instance
 
         // Global variables
         let students = [];
@@ -1077,11 +1076,26 @@ const allStudents = [
                 });
         }
 
-        // Initialize the application
         async function initializeApp() {
-            try {
-                showLoading();
-                
+  showLoading();
+  
+  try {
+    const snapshot = await firebase.database().ref('students').once('value');
+    const studentsData = snapshot.val() || []; // Fallback to empty array
+    
+    if (studentsData.length === 0) {
+      console.log("Initializing with default students");
+      await firebase.database().ref('students').set(allStudents);
+    }
+    
+    updateUI(studentsData);
+  } catch (error) {
+    console.error("Initialization failed:", error);
+    document.getElementById('dbStatus').textContent = 'Disconnected';
+  } finally {
+    hideLoading(); // Always hide loading spinner
+  }
+}
                 // Load data from Firebase
                 const [studentsData, historyData] = await Promise.all([
                     loadStudentsFromFirebase(),
